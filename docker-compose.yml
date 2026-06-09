@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: blog-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - laravel
+    volumes:
+      - .:/var/www/html
+      - vendor_data:/var/www/html/vendor
+    env_file:
+      - .env
+    entrypoint: ["/var/www/html/docker/php/entrypoint.sh"]
+
+  webserver:
+    image: nginx:alpine
+    container_name: blog-app-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+networks:
+  laravel:
+
+volumes:
+  vendor_data:

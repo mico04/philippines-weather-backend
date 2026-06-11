@@ -9,3 +9,4 @@ Route::get('/user', function (Request $request) {
 
 route::get('/philippines/cities', [App\Http\Controllers\PhilippinesCityController::class, 'index']);
 
+route::get('/weather/city/{city}', [App\Http\Controllers\WeatherCityController::class, 'show']);

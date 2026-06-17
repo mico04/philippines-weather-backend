@@ -66,40 +66,40 @@ class WeatherCityTest extends TestCase
         ];
 
         $weatherCodeToIcon = [
-            0  => '01d', // Clear Sky
-            1  => '02d', // Few Clouds
-            2  => '03d', // Scattered Clouds
-            3  => '04d', // Broken Clouds
+            0  => '01', // Clear Sky
+            1  => '02', // Few Clouds
+            2  => '03', // Scattered Clouds
+            3  => '04', // Broken Clouds
 
-            45 => '50d', // Mist/Fog
-            48 => '50d',
+            45 => '50', // Mist/Fog
+            48 => '50',
 
-            51 => '09d', // Drizzle
-            53 => '09d',
-            55 => '09d',
-            56 => '09d',
-            57 => '09d',
+            51 => '09', // Drizzle
+            53 => '09',
+            55 => '09',
+            56 => '09',
+            57 => '09',
 
-            61 => '10d', // Rain
-            63 => '10d',
-            65 => '10d',
-            66 => '10d',
-            67 => '10d',
+            61 => '10', // Rain
+            63 => '10',
+            65 => '10',
+            66 => '10',
+            67 => '10',
 
-            71 => '13d', // Snow
-            73 => '13d',
-            75 => '13d',
-            77 => '13d',
-            85 => '13d',
-            86 => '13d',
+            71 => '13', // Snow
+            73 => '13',
+            75 => '13',
+            77 => '13',
+            85 => '13',
+            86 => '13',
 
-            80 => '09d', // Shower Rain
-            81 => '09d',
-            82 => '09d',
+            80 => '09', // Shower Rain
+            81 => '09',
+            82 => '09',
 
-            95 => '11d', // Thunderstorm
-            96 => '11d',
-            99 => '11d',
+            95 => '11', // Thunderstorm
+            96 => '11',
+            99 => '11',
         ];
 
 
@@ -121,12 +121,12 @@ class WeatherCityTest extends TestCase
             'message' => 'Load successfully.',
             'data' => [
                 'city' => $city,
-                'temperature' => "{$city_weather['current']['temperature_2m']}{$city_weather['current_units']['temperature_2m']}",
+                'temperature' => $city_weather['current']['temperature_2m'],
                 'description' => $weatherCodes[$city_weather['current']['weather_code']] ?? 'Unknown',
-                'humidity' => "{$city_weather['current']['relative_humidity_2m']}{$city_weather['current_units']['relative_humidity_2m']}",
+                'humidity' => $city_weather['current']['relative_humidity_2m'],
                 'wind_speed' => "{$city_weather['current']['wind_speed_10m']}{$city_weather['current_units']['wind_speed_10m']}",
-                'cloud_cover' => "{$city_weather['current']['cloud_cover']}{$city_weather['current_units']['cloud_cover']}",
-                'feels_like' => "{$feels_like}°C",
+                'cloud_cover' => $city_weather['current']['cloud_cover'],
+                'feels_like' => $feels_like,
                 'icon' => $weatherCodeToIcon[$city_weather['current']['weather_code']] ?? 'unknown'
             ]
         ]);

@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: blog-app
+    container_name: weather-app
     restart: unless-stopped
     working_dir: /var/www/html
     ports:
@@ -19,7 +19,7 @@ services:
 
   webserver:
     image: nginx:alpine
-    container_name: blog-app-webserver
+    container_name: weather-app-webserver
     restart: unless-stopped
     ports:
       - "8000:80"

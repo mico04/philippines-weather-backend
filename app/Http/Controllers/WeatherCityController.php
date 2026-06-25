@@ -116,14 +116,16 @@ class WeatherCityController extends Controller
         try {
             $current_date = date('Y-m-d');
 
-            $city_longitude_latitude = Http::get("https://geocoding-api.open-meteo.com/v1/search?name={$id}&count=1&language=en&format=json")->json()['results'][0];
+            $city_longitude_latitude = Http::retry(3, 1000)->timeout(120)
+    ->connectTimeout(30)->get("https://geocoding-api.open-meteo.com/v1/search?name={$id}&count=1&language=en&format=json")->json()['results'][0];
 
-            $city_weather = Http::get("https://api.open-meteo.com/v1/forecast?latitude={$city_longitude_latitude['latitude']}&longitude={$city_longitude_latitude['longitude']}&current=temperature_2m,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover&timezone=auto&start_date={$current_date}&end_date={$current_date}")->json();
+            $city_weather = Http::retry(3, 1000)->timeout(120)
+    ->connectTimeout(30)->get("https://api.open-meteo.com/v1/forecast?latitude={$city_longitude_latitude['latitude']}&longitude={$city_longitude_latitude['longitude']}&current=temperature_2m,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover&timezone=auto&start_date={$current_date}&end_date={$current_date}")->json();
 
             $feels_like = $this->heatIndex($city_weather['current']['temperature_2m'], $city_weather['current']['relative_humidity_2m']);
 
             $result['data'] = [
-                'city' => $id,
+                'city' => "{$id}, {$city_longitude_latitude['admin2']}",
                 'temperature' => $city_weather['current']['temperature_2m'],
                 'description' => $weather_codes[$city_weather['current']['weather_code']] ?? 'Unknown',
                 'humidity' => $city_weather['current']['relative_humidity_2m'],

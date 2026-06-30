@@ -24,8 +24,6 @@ This API serves as the backend for the Vue.js Weather App and acts as a bridge b
 
 - Laravel 12
 - PHP 8.2+
-- MySQL
-- Eloquent ORM
 - Laravel HTTP Client
 - External Weather API
 

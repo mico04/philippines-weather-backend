@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Traits\ResponseTrait;
+use Illuminate\Support\Facades\Cache;
 
 class WeatherCityController extends Controller
 {
@@ -116,11 +117,45 @@ class WeatherCityController extends Controller
         try {
             $current_date = date('Y-m-d');
 
-            $city_longitude_latitude = Http::retry(3, 1000)->timeout(120)
-    ->connectTimeout(30)->get("https://geocoding-api.open-meteo.com/v1/search?name={$id}&count=1&language=en&format=json")->json()['results'][0];
+          $city_longitude_latitude = Cache::remember(
+        "weather:geocode:{$id}",
+        now()->addDays(30),
+        function () use ($id) {
+            $response = Http::retry(3, 1000)
+                ->timeout(120)
+                ->connectTimeout(30)
+                ->get("https://geocoding-api.open-meteo.com/v1/search", [
+                    'name' => $id,
+                    'count' => 1,
+                    'language' => 'en',
+                    'format' => 'json',
+                ])
+                ->throw();
 
-            $city_weather = Http::retry(3, 1000)->timeout(500)
-    ->connectTimeout(30)->get("https://api.open-meteo.com/v1/forecast?latitude={$city_longitude_latitude['latitude']}&longitude={$city_longitude_latitude['longitude']}&current=temperature_2m,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover&timezone=auto&start_date={$current_date}&end_date={$current_date}")->json();
+            return $response->json()['results'][0];
+        }
+    );
+           // Cache weather for 10 minutes
+    $city_weather = Cache::remember(
+        "weather:forecast:{$city_longitude_latitude['latitude']}:{$city_longitude_latitude['longitude']}",
+        now()->addMinutes(10),
+        function () use ($city_longitude_latitude, $current_date) {
+            $response = Http::retry(3, 1000)
+                ->timeout(500)
+                ->connectTimeout(30)
+                ->get("https://api.open-meteo.com/v1/forecast", [
+                    'latitude' => $city_longitude_latitude['latitude'],
+                    'longitude' => $city_longitude_latitude['longitude'],
+                    'current' => 'temperature_2m,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover',
+                    'timezone' => 'auto',
+                    'start_date' => $current_date,
+                    'end_date' => $current_date,
+                ])
+                ->throw();
+
+            return $response->json();
+        }
+    );
 
             $feels_like = $this->heatIndex($city_weather['current']['temperature_2m'], $city_weather['current']['relative_humidity_2m']);
 

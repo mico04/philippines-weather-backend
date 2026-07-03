@@ -16,6 +16,9 @@ services:
     env_file:
       - .env
     entrypoint: ["/var/www/html/docker/php/entrypoint.sh"]
+    depends_on:
+      redis:
+        condition: service_healthy
 
   webserver:
     image: nginx:alpine
@@ -27,11 +30,30 @@ services:
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - app
+      - redis
     networks:
       - laravel
+
+  redis:
+    image: redis:7-alpine
+    container_name: weather-app-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   laravel:
 
 volumes:
   vendor_data:
+  redis_data:

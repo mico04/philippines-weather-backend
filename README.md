@@ -26,5 +26,6 @@ This API serves as the backend for the Vue.js Weather App and acts as a bridge b
 - PHP 8.2+
 - Laravel HTTP Client
 - External Weather API
+- Redis (Caching)
 
 ---
